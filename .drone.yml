@@ -7,3 +7,11 @@ steps:
   commands:
   - yarn
   - yarn lint
+
+trigger:
+ event:
+ - pull_request
+ branch:
+ - master
+ - develop
+ - next
