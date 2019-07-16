@@ -1,0 +1,9 @@
+kind: pipeline
+name: default
+
+steps:
+- name: Lint
+  image: node:10.15.1
+  commands:
+  - yarn
+  - yarn lint

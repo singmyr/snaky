@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { default as logo2 } from './logo.svg';
 
 const App: React.FC = (): JSX.Element => {
     return (
