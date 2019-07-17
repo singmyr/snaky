@@ -31,6 +31,11 @@ const rotateVector = (vec: number[], ang: number): number[] => {
     ];
 };
 
+const KEYS = {
+    LEFT: 1,
+    RIGHT: 2,
+};
+
 interface GameCanvasProps {
     width: number;
     height: number;
@@ -41,15 +46,14 @@ class GameCanvas extends React.Component<GameCanvasProps> {
 
     private ctx: CanvasRenderingContext2D | null = null;
 
-    private points = [[50, 50]];
-    private velX: number = 150;
+    private points: number[][] = [[50, 50]];
+    private velX: number = 125;
     private velY: number = 0;
     private curX: number = 50;
     private curY: number = 50;
-    private turnRadius = 270;
+    private turnRadius = 172;
     private oldTS: number = 0;
-    private keyDownTS: number = 0;
-    private keyPressed: string | null = null;
+    private keysPressed: number = 0;
 
     public componentDidMount(): void {
         window.addEventListener('keydown', this.onKeyDown);
@@ -69,20 +73,19 @@ class GameCanvas extends React.Component<GameCanvasProps> {
         const currentTS = Date.now();
         const delta = (currentTS - oldTS) / 1000;
 
-        this.points.push([this.curX, this.curY]);
-
         let newVel = [];
-        switch (this.keyPressed) {
-            case 'LEFT':
-                newVel = rotateVector([this.velX, this.velY], this.turnRadius * delta);
-                this.velX = newVel[0];
-                this.velY = newVel[1];
-                break;
-            case 'RIGHT':
-                newVel = rotateVector([this.velX, this.velY], -this.turnRadius * delta);
-                this.velX = newVel[0];
-                this.velY = newVel[1];
-                break;
+        if (this.keysPressed === KEYS.LEFT) {
+            this.points.push([this.curX, this.curY]);
+            newVel = rotateVector([this.velX, this.velY], this.turnRadius * delta);
+            this.velX = newVel[0];
+            this.velY = newVel[1];
+        }
+
+        if (this.keysPressed === KEYS.RIGHT) {
+            this.points.push([this.curX, this.curY]);
+            newVel = rotateVector([this.velX, this.velY], -this.turnRadius * delta);
+            this.velX = newVel[0];
+            this.velY = newVel[1];
         }
 
         this.oldTS = currentTS;
@@ -132,21 +135,31 @@ class GameCanvas extends React.Component<GameCanvasProps> {
     }
 
     private onKeyDown = (e: KeyboardEvent): boolean => {
-        this.keyDownTS = Date.now();
         switch (e.keyCode) {
             case 37: // Left.
-                this.keyPressed = 'LEFT';
+                this.keysPressed |= KEYS.LEFT;
                 break;
             case 39: // Right.
-                this.keyPressed = 'RIGHT';
+                this.keysPressed |= KEYS.RIGHT;
                 break;
         }
+        e.stopPropagation();
+        e.preventDefault();
         return false;
     };
 
-    private onKeyUp = (): boolean => {
-        this.keyPressed = null;
+    private onKeyUp = (e: KeyboardEvent): boolean => {
+        switch (e.keyCode) {
+            case 37: // Left.
+                this.keysPressed &= ~KEYS.LEFT;
+                break;
+            case 39: // Right.
+                this.keysPressed &= ~KEYS.RIGHT;
+                break;
+        }
 
+        e.stopPropagation();
+        e.preventDefault();
         return false;
     };
 
